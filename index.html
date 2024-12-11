@@ -1,0 +1,1033 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cryptography Toolkit</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+        }
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 1rem;
+            text-align: center;
+        }
+        nav {
+            display: flex;
+            justify-content: center;
+            background-color: #444;
+            padding: 1rem;
+        }
+        nav a {
+            color: #fff;
+            margin: 0 1rem;
+            text-decoration: none;
+        }
+        section {
+            padding: 2rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+        .hidden {
+            display: none;
+        }
+        .visible {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Cryptography Toolkit</h1>
+    </header>
+    <nav>
+        <a href="#section1">Techniques Selection</a>
+        <a href="#section2">Code and Analysis</a>
+        <a href="#section3">Simulation</a>
+    </nav>
+
+    <section id="section1" class="container">
+        <h2>1. Select a Cryptographic Technique</h2>
+        <select id="techniqueSelect">
+            <option value="ceasar">Ceasar Cipher</option>
+            <option value="affine">Affine Cipher</option>
+            <option value="viginere">Vigenere Cipher</option>
+            <option value="columnar">Columnar Transposition</option>
+            <option value="playfair">Playfair Cipher</option>
+            <option value="sdes">S-DES</option>
+            <option value="fiestel">Fiestel Cipher</option>
+            <option value="railfence">Railfence Cipher</option>
+            <option value="diffiehellman">Diffie-Hellman Key Exchange</option>
+            <option value="rsa">RSA Algorithm</option>
+            <option value="zkp">Zero Knowledge Proof</option>
+        </select>
+    </section>
+
+    <section id="section2" class="container">
+        <h2>2. Code, Cryptanalysis, and Attacks</h2>
+        <div id="techniqueDetails">
+            <p>Select a technique from Section 1 to view details.</p>
+        </div>
+    </section>
+
+    <section id="section3" class="container">
+        <h2>3. Simulation</h2>
+        <div id="simulation">
+            <p>Select a technique from Section 1 to perform a live simulation.</p>
+        </div>
+    </section>
+
+    <script>
+        const techniqueSelect = document.getElementById('techniqueSelect');
+        const techniqueDetails = document.getElementById('techniqueDetails');
+        const simulation = document.getElementById('simulation');
+
+        const techniqueData = {
+            ceasar: {
+                code: `
+string caesarEncrypt(string text, int shift) {
+    string result = "";
+    for (char &c : text) {
+        if (isalpha(c)) {
+            char shift_amount = isupper(c) ? 'A' : 'a';
+            result += (c - shift_amount + shift) % 26 + shift_amount;
+        } else {
+            result += c;
+        }
+    }
+    return result;
+}
+
+string caesarDecrypt(string text, int shift) {
+    string result = "";
+    for (char &c : text) {
+        if (isalpha(c)) {
+            char shift_amount = isupper(c) ? 'A' : 'a';
+            result += (c - shift_amount - shift + 26) % 26 + shift_amount;
+        } else {
+            result += c;
+        }
+    }
+    return result;
+}
+
+int main() {
+    string plaintext = "HELLO, WORLD!";
+    int shift = 3;
+    
+    // Encryption
+    string encryptedText = caesarEncrypt(plaintext, shift);
+    cout << "Encrypted: " << encryptedText << endl;
+    
+    // Decryption
+    string decryptedText = caesarDecrypt(encryptedText, shift);
+    cout << "Decrypted: " << decryptedText << endl;
+
+    return 0;
+}
+`,
+                analysis: "Ceasar Cipher is a simple substitution cipher vulnerable to frequency analysis.",
+                attacks: "Brute force (26 possibilities), Frequency analysis."
+            },
+            affine: {
+    code: `
+
+// Function to find the modular inverse
+int modInverse(int a, int m) {
+    a = a % m;
+    for (int x = 1; x < m; x++)
+        if ((a * x) % m == 1)
+            return x;
+    return -1;
+}
+
+// Function for Affine Cipher Encryption
+string affineEncrypt(string text, int a, int b) {
+    string result = "";
+    for (char &c : text) {
+        if (isalpha(c)) {
+            char base = isupper(c) ? 'A' : 'a';
+            result += ((a * (c - base) + b) % 26) + base;
+        } else {
+            result += c;
+        }
+    }
+    return result;
+}
+
+// Function for Affine Cipher Decryption
+string affineDecrypt(string text, int a, int b) {
+    string result = "";
+    int a_inv = modInverse(a, 26);
+    if (a_inv == -1) {
+        return "No modular inverse exists for the given 'a' value";
+    }
+    for (char &c : text) {
+        if (isalpha(c)) {
+            char base = isupper(c) ? 'A' : 'a';
+            result += (a_inv * ((c - base - b + 26) % 26)) % 26 + base;
+        } else {
+            result += c;
+        }
+    }
+    return result;
+}
+
+int main() {
+    string plaintext = "HELLO, WORLD!";
+    int a = 5; // 'a' must be coprime with 26
+    int b = 8;
+
+    // Encryption
+    string encryptedText = affineEncrypt(plaintext, a, b);
+    cout << "Encrypted: " << encryptedText << endl;
+
+    // Decryption
+    string decryptedText = affineDecrypt(encryptedText, a, b);
+    cout << "Decrypted: " << decryptedText << endl;
+
+    return 0;
+}
+`,
+                analysis: "Since it is a substitution cipher, it is vulnerable to frequency analysis. By analyzing the frequency of letters in the ciphertext, an attacker can guess the most likely mappings.",
+                attacks: "Brute Force: Since 'a' must be coprime with 26, there are 12 possible values for 'a' and 26 possible values for 'b'. An attacker can try all combinations (12 * 26 = 312 possibilities). Known Plaintext Attack: If an attacker knows a small part of the plaintext and the corresponding ciphertext, they can solve for 'a' and 'b' using simultaneous equations."
+            },
+            viginere: {
+    code: `
+
+// Function to generate the key in a cyclic manner until it matches the length of the text
+string generateKey(string text, string key) {
+    int textLen = text.size();
+    for (int i = 0; key.size() < textLen; ++i) {
+        key.push_back(key[i % key.size()]);
+    }
+    return key;
+}
+
+// Function for Vigenère Cipher Encryption
+string vigenereEncrypt(string text, string key) {
+    string result = "";
+    key = generateKey(text, key);
+    for (int i = 0; i < text.size(); ++i) {
+        if (isalpha(text[i])) {
+            char base = isupper(text[i]) ? 'A' : 'a';
+            result += (text[i] + key[i] - 2 * base) % 26 + base;
+        } else {
+            result += text[i];
+        }
+    }
+    return result;
+}
+
+// Function for Vigenère Cipher Decryption
+string vigenereDecrypt(string text, string key) {
+    string result = "";
+    key = generateKey(text, key);
+    for (int i = 0; i < text.size(); ++i) {
+        if (isalpha(text[i])) {
+            char base = isupper(text[i]) ? 'A' : 'a';
+            result += (text[i] - key[i] + 26) % 26 + base;
+        } else {
+            result += text[i];
+        }
+    }
+    return result;
+}
+
+int main() {
+    string plaintext = "HELLO, WORLD!";
+    string key = "KEY";
+
+    // Encryption
+    string encryptedText = vigenereEncrypt(plaintext, key);
+    cout << "Encrypted: " << encryptedText << endl;
+
+    // Decryption
+    string decryptedText = vigenereDecrypt(encryptedText, key);
+    cout << "Decrypted: " << decryptedText << endl;
+
+    return 0;
+}
+`,
+    analysis: "Frequency Analysis: More difficult than with monoalphabetic ciphers, but still possible by breaking the ciphertext into multiple parts and analyzing each part separately. Kasiski Examination: This method involves finding repeating sequences of letters in the ciphertext to guess the length of the key.",
+    attacks: "Known Plaintext Attack: If part of the plaintext is known or can be guessed, it can be used to determine part of the key. Frequency Analysis: By analyzing the frequency of letters within segments of the ciphertext, an attacker can make educated guesses about the key."
+},
+columnar: {
+    code: `
+
+
+// Function to encrypt using Columnar Transposition Cipher
+string columnarEncrypt(string text, string key) {
+    int columns = key.size();
+    int rows = text.size() / columns + (text.size() % columns != 0);
+    vector<string> grid(rows, string(columns, ' '));
+
+    for (int i = 0; i < text.size(); ++i) {
+        grid[i / columns][i % columns] = text[i];
+    }
+
+    string result = "";
+    vector<pair<char, int>> sortedKey;
+    for (int i = 0; i < key.size(); ++i) {
+        sortedKey.push_back({key[i], i});
+    }
+    sort(sortedKey.begin(), sortedKey.end());
+
+    for (auto k : sortedKey) {
+        int col = k.second;
+        for (int row = 0; row < rows; ++row) {
+            result += grid[row][col];
+        }
+    }
+    return result;
+}
+
+// Function to decrypt using Columnar Transposition Cipher
+string columnarDecrypt(string text, string key) {
+    int columns = key.size();
+    int rows = text.size() / columns;
+    vector<string> grid(rows, string(columns, ' '));
+
+    vector<pair<char, int>> sortedKey;
+    for (int i = 0; i < key.size(); ++i) {
+        sortedKey.push_back({key[i], i});
+    }
+    sort(sortedKey.begin(), sortedKey.end());
+
+    int index = 0;
+    for (auto k : sortedKey) {
+        int col = k.second;
+        for (int row = 0; row < rows; ++row) {
+            grid[row][col] = text[index++];
+        }
+    }
+
+    string result = "";
+    for (int row = 0; row < rows; ++row) {
+        for (int col = 0; col < columns; ++col) {
+            result += grid[row][col];
+        }
+    }
+    return result;
+}
+
+int main() {
+    string plaintext = "WEAREDISCOVEREDFLEEATONCE";
+    string key = "ZEBRAS";
+
+    // Encryption
+    string encryptedText = columnarEncrypt(plaintext, key);
+    cout << "Encrypted: " << encryptedText << endl;
+
+    // Decryption
+    string decryptedText = columnarDecrypt(encryptedText, key);
+    cout << "Decrypted: " << decryptedText << endl;
+
+    return 0;
+}
+`,
+    analysis: "Columnar Transposition Cipher is a transposition cipher that rearranges the letters of the plaintext according to a key.",
+    attacks: "Brute Force: If the key length is known, trying all permutations of the key. Known Plaintext Attack: If part of the plaintext and its corresponding ciphertext are known, the key can be derived."
+},
+playfair: {
+    code: `
+
+
+vector<vector<char>> generateKeyMatrix(string key) {
+    vector<vector<char>> keyMatrix(5, vector<char>(5, ' '));
+    vector<bool> used(26, false);
+    used['J' - 'A'] = true;
+    int row = 0, col = 0;
+
+    for (char c : key) {
+        if (!used[c - 'A']) {
+            keyMatrix[row][col++] = c;
+            used[c - 'A'] = true;
+            if (col == 5) {
+                col = 0;
+                row++;
+            }
+        }
+    }
+    for (char c = 'A'; c <= 'Z'; ++c) {
+        if (!used[c - 'A']) {
+            keyMatrix[row][col++] = c;
+            used[c - 'A'] = true;
+            if (col == 5) {
+                col = 0;
+                row++;
+            }
+        }
+    }
+    return keyMatrix;
+}
+
+string playfairEncrypt(string text, string key) {
+    vector<vector<char>> keyMatrix = generateKeyMatrix(key);
+    // Encryption logic
+    return text; // Placeholder
+}
+
+string playfairDecrypt(string text, string key) {
+    vector<vector<char>> keyMatrix = generateKeyMatrix(key);
+    // Decryption logic
+    return text; // Placeholder
+}
+
+int main() {
+    string plaintext = "HELLO";
+    string key = "KEYWORD";
+
+    // Encryption
+    string encryptedText = playfairEncrypt(plaintext, key);
+    cout << "Encrypted: " << encryptedText << endl;
+
+    // Decryption
+    string decryptedText = playfairDecrypt(encryptedText, key);
+    cout << "Decrypted: " << decryptedText << endl;
+
+    return 0;
+}
+`,
+    analysis: "The Playfair cipher encrypts pairs of letters, making it more secure against frequency analysis than monoalphabetic ciphers.",
+    attacks: "Frequency Analysis: Pairs of letters can still show frequency patterns. Known Plaintext Attack: If enough pairs are known, the key matrix can be reconstructed."
+},
+sdes: {
+    code: `
+
+
+// Function to perform permutation
+vector<int> permute(const vector<int>& input, const vector<int>& permutation) {
+    vector<int> permutedOutput;
+    for (int i : permutation) {
+        permutedOutput.push_back(input[i - 1]);  // -1 because index starts from 0 in C++
+    }
+    return permutedOutput;
+}
+
+// Function to perform left shift
+vector<int> leftShift(const vector<int>& half, int shifts) {
+    vector<int> shiftedHalf = half;
+    for (int i = 0; i < shifts; ++i) {
+        int firstBit = shiftedHalf[0];
+        shiftedHalf.erase(shiftedHalf.begin());
+        shiftedHalf.push_back(firstBit);
+    }
+    return shiftedHalf;
+}
+
+// S-box S0
+int S0[4][4] = {
+    {1, 0, 3, 2},
+    {3, 2, 1, 0},
+    {0, 2, 1, 3},
+    {3, 1, 3, 2}
+};
+
+// S-box S1
+int S1[4][4] = {
+    {0, 1, 2, 3},
+    {2, 0, 1, 3},
+    {3, 0, 1, 0},
+    {2, 1, 0, 3}
+};
+
+// Function to perform S-box substitution
+vector<int> sBoxSubstitution(const vector<int>& input, const int SBox[4][4]) {
+    int row = (input[0] << 1) + input[3];
+    int col = (input[1] << 1) + input[2];
+    int value = SBox[row][col];
+    return {value >> 1, value & 1};
+}
+
+// Function fK
+vector<int> functionFK(const vector<int>& half, const vector<int>& subkey) {
+    vector<int> left(half.begin(), half.begin() + 4);
+    vector<int> right(half.begin() + 4, half.end());
+
+    // Expansion/Permutation (E/P)
+    vector<int> EP = {4, 1, 2, 3, 2, 3, 4, 1};
+    vector<int> expandedRight = permute(right, EP);
+
+    // XOR with subkey
+    for (int i = 0; i < expandedRight.size(); ++i) {
+        expandedRight[i] ^= subkey[i];
+    }
+
+    // S-box substitutions
+    vector<int> left4(expandedRight.begin(), expandedRight.begin() + 4);
+    vector<int> right4(expandedRight.begin() + 4, expandedRight.end());
+    vector<int> leftSBox = sBoxSubstitution(left4, S0);
+    vector<int> rightSBox = sBoxSubstitution(right4, S1);
+
+    // Combine S-box outputs
+    vector<int> combinedSBox = {leftSBox[0], leftSBox[1], rightSBox[0], rightSBox[1]};
+
+    // Permutation P4
+    vector<int> P4 = {2, 4, 3, 1};
+    vector<int> permutedSBox = permute(combinedSBox, P4);
+
+    // XOR with left half
+    for (int i = 0; i < left.size(); ++i) {
+        left[i] ^= permutedSBox[i];
+    }
+
+    // Combine left and right for final output of fK
+    vector<int> output = left;
+    output.insert(output.end(), right.begin(), right.end());
+    return output;
+}
+
+// Function to generate keys K1 and K2
+void generateKeys(const vector<int>& originalKey, vector<int>& key1, vector<int>& key2) {
+    // Step 1: Permutation P10
+    vector<int> P10 = {3, 5, 2, 7, 4, 10, 1, 9, 8, 6};
+    vector<int> permutedKey = permute(originalKey, P10);
+    
+    // Step 2: Divide the key into 2 halves of 5-bit each
+    vector<int> leftHalf(permutedKey.begin(), permutedKey.begin() + 5);
+    vector<int> rightHalf(permutedKey.begin() + 5, permutedKey.end());
+    
+    // Step 3: Apply one bit left-shift on each half
+    leftHalf = leftShift(leftHalf, 1);
+    rightHalf = leftShift(rightHalf, 1);
+    
+    // Step 4: Combine the halves and permute using P8 to get Key-1
+    vector<int> combinedHalf1 = leftHalf;
+    combinedHalf1.insert(combinedHalf1.end(), rightHalf.begin(), rightHalf.end());
+    
+    vector<int> P8 = {6, 3, 7, 4, 8, 5, 10, 9};
+    key1 = permute(combinedHalf1, P8);
+    
+    // Step 5: Apply two-bit left shift on both halves
+    leftHalf = leftShift(leftHalf, 2);
+    rightHalf = leftShift(rightHalf, 2);
+    
+    // Step 6: Combine the halves and permute using P8 to get Key-2
+    vector<int> combinedHalf2 = leftHalf;
+    combinedHalf2.insert(combinedHalf2.end(), rightHalf.begin(), rightHalf.end());
+    
+    key2 = permute(combinedHalf2, P8);
+}
+
+// Encryption function using generated keys
+vector<int> encrypt(const vector<int>& plaintext, const vector<int>& key1, const vector<int>& key2) {
+    // Initial Permutation (IP)
+    vector<int> IP = {2, 6, 3, 1, 4, 8, 5, 7};
+    vector<int> permutedPlaintext = permute(plaintext, IP);
+
+    // Apply first fK with K1
+    vector<int> fkResult = functionFK(permutedPlaintext, key1);
+
+    // Switch function (SW) - swapping the halves
+    vector<int> switched(fkResult.begin() + 4, fkResult.end());
+    switched.insert(switched.end(), fkResult.begin(), fkResult.begin() + 4);
+
+    // Apply second fK with K2
+    fkResult = functionFK(switched, key2);
+
+    // Inverse Initial Permutation (IP-1)
+    vector<int> IP1 = {4, 1, 3, 5, 7, 2, 8, 6};
+    vector<int> ciphertext = permute(fkResult, IP1);
+
+    return ciphertext;
+}
+
+int main() {
+    // Original 10-bit key
+    vector<int> originalKey = {1, 0, 1, 0, 0, 0, 0, 0, 1, 0};
+    
+    // To store generated keys
+    vector<int> key1, key2;
+    
+    // Generate keys
+    generateKeys(originalKey, key1, key2);
+    
+    // Display Key-1
+    cout << "Key-1 is: ";
+    for (int bit : key1) {
+        cout << bit;
+    }
+    cout << endl;
+    
+    // Display Key-2
+    cout << "Key-2 is: ";
+    for (int bit : key2) {
+        cout << bit;
+    }
+    cout << endl;
+
+    // Example plaintext (8-bit)
+    vector<int> plaintext = {1, 0, 1, 1, 1, 1, 0, 1};
+
+    // Encrypt plaintext
+    vector<int> ciphertext = encrypt(plaintext, key1, key2);
+
+    // Display ciphertext
+    cout << "Ciphertext is: ";
+    for (int bit : ciphertext) {
+        cout << bit;
+    }
+    cout << endl;
+
+    return 0;
+}
+`,
+    analysis: "Simplified DES (S-DES) is a basic version of the Data Encryption Standard (DES), used for educational purposes.",
+    attacks: "Brute Force: Limited key space makes it vulnerable. Differential Cryptanalysis: Exploits specific structure weaknesses."
+},
+fiestel: {
+    code: `
+
+
+// Function to convert string to binary representation
+string stringToBinary(const string &text) {
+    string binaryString = "";
+    for (char c : text) {
+        binaryString += bitset<8>(c).to_string();
+    }
+    return binaryString;
+}
+
+// Function to convert binary string back to text
+string binaryToString(const string &binary) {
+    string text = "";
+    for (size_t i = 0; i < binary.size(); i += 8) {
+        bitset<8> charBits(binary.substr(i, 8));
+        text += static_cast<char>(charBits.to_ulong());
+    }
+    return text;
+}
+
+// Function to perform XOR on two binary strings
+string xorBinary(const string &a, const string &b) {
+    string result = "";
+    for (size_t i = 0; i < a.size(); i++) {
+        result += (a[i] == b[i]) ? '0' : '1';
+    }
+    return result;
+}
+
+// Function to generate a random key within ASCII range and of a specific length
+string generateRandomKey(int length) {
+    string key = "";
+    for (int i = 0; i < length; i += 8) {
+        char randomChar = static_cast<char>(32 + rand() % 95); // ASCII range 32-126
+        key += bitset<8>(randomChar).to_string();
+    }
+    return key;
+}
+
+// Feistel encryption function
+string feistelEncrypt(const string &plaintext, const string &K1, const string &K2) {
+    string binaryText = stringToBinary(plaintext);
+    int n = binaryText.size();
+    
+    // Ensure the length is even by padding if necessary
+    if (n % 2 != 0) {
+        binaryText += "00000000";
+        n += 8;
+    }
+
+    string L1 = binaryText.substr(0, n / 2);
+    string R1 = binaryText.substr(n / 2);
+
+    // Simple Feistel function: XOR and ensure the result stays within the ASCII range
+    auto feistelFunction = [](const string &R, const string &K) {
+        string result = xorBinary(R, K);
+        for (size_t i = 0; i < result.size(); i += 8) {
+            bitset<8> bits(result.substr(i, 8));
+            bits = bitset<8>(32 + (bits.to_ulong() % 95)); // Ensure ASCII 32-126
+            result.replace(i, 8, bits.to_string());
+        }
+        return result;
+    };
+
+    string f1 = feistelFunction(R1, K1);
+    string L2 = R1;
+    string R2 = xorBinary(f1, L1);
+
+    string f2 = feistelFunction(R2, K2);
+    string L3 = R2;
+    string R3 = xorBinary(f2, L2);
+
+    string cipherBinary = L3 + R3;
+
+    return binaryToString(cipherBinary);
+}
+
+// Feistel decryption function
+string feistelDecrypt(const string &ciphertext, const string &K1, const string &K2) {
+    string binaryText = stringToBinary(ciphertext);
+    int n = binaryText.size();
+
+    if (n % 2 != 0) {
+        return "Invalid ciphertext length.";
+    }
+
+    string L3 = binaryText.substr(0, n / 2);
+    string R3 = binaryText.substr(n / 2);
+
+    auto feistelFunction = [](const string &R, const string &K) {
+        string result = xorBinary(R, K);
+        for (size_t i = 0; i < result.size(); i += 8) {
+            bitset<8> bits(result.substr(i, 8));
+            bits = bitset<8>(32 + (bits.to_ulong() % 95)); // Ensure ASCII 32-126
+            result.replace(i, 8, bits.to_string());
+        }
+        return result;
+    };
+
+    string f2 = feistelFunction(R3, K2);
+    string L2 = xorBinary(f2, L3);
+    string R2 = L3;
+
+    string f1 = feistelFunction(R2, K1);
+    string L1 = xorBinary(f1, L2);
+    string R1 = R2;
+
+    string plainBinary = L1 + R1;
+
+    return binaryToString(plainBinary);
+}
+
+int main() {
+    srand(time(0));
+
+    string plaintext;
+    cout << "Enter the Plain Text: ";
+    getline(cin, plaintext);
+
+    // Generate random keys
+    string K1 = generateRandomKey(32); // 32-bit key
+    string K2 = generateRandomKey(32); // 32-bit key
+
+    string cipherText = feistelEncrypt(plaintext, K1, K2);
+    cout << "Cipher Text: " << cipherText << endl;
+
+    string decryptedText = feistelDecrypt(cipherText, K1, K2);
+    cout << "Decrypted Text: " << decryptedText << endl;
+
+    return 0;
+}
+`,
+    analysis: "The Feistel cipher is a symmetric structure used in the construction of many block ciphers, such as DES.",
+    attacks: "Differential Cryptanalysis: Analyzes the effect of differences in plaintext on the ciphertext. Linear Cryptanalysis: Uses linear approximations to describe the behavior of the block cipher."
+},railfence: {
+    code: `
+
+
+string railFenceEncrypt(string text, int key) {
+    vector<string> rail(key);
+    int dir = 1, row = 0;
+    for (char c : text) {
+        rail[row] += c;
+        row += dir;
+        if (row == 0 || row == key - 1) dir = -dir;
+    }
+    string result;
+    for (string r : rail) result += r;
+    return result;
+}
+
+string railFenceDecrypt(string text, int key) {
+    vector<int> rail(key);
+    int dir = 1, row = 0;
+    for (int i = 0; i < text.size(); ++i) {
+        rail[row]++;
+        row += dir;
+        if (row == 0 || row == key - 1) dir = -dir;
+    }
+    vector<string> decrypted(key);
+    int idx = 0;
+    for (int r = 0; r < key; ++r) {
+        for (int j = 0; j < rail[r]; ++j) {
+            decrypted[r] += text[idx++];
+        }
+    }
+    string result;
+    row = 0, dir = 1;
+    for (int i = 0; i < text.size(); ++i) {
+        result += decrypted[row][0];
+        decrypted[row].erase(0, 1);
+        row += dir;
+        if (row == 0 || row == key - 1) dir = -dir;
+    }
+    return result;
+}
+
+int main() {
+    string plaintext = "HELLO, WORLD!";
+    int key = 3;
+
+    // Encryption
+    string encryptedText = railFenceEncrypt(plaintext, key);
+    cout << "Encrypted: " << encryptedText << endl;
+
+    // Decryption
+    string decryptedText = railFenceDecrypt(encryptedText, key);
+    cout << "Decrypted: " << decryptedText << endl;
+
+    return 0;
+}
+`,
+    analysis: "The Rail Fence cipher is a transposition cipher that writes plaintext in a zigzag pattern and then reads off each line.",
+    attacks: "Brute Force: Trying all possible key values. Known Plaintext Attack: If part of the plaintext is known, the key can be derived."
+},
+diffiehellman: {
+    code: `
+
+
+int powerMod(int base, int exp, int mod) {
+    int result = 1;
+    for (int i = 0; i < exp; ++i) {
+        result = (result * base) % mod;
+    }
+    return result;
+}
+
+int main() {
+    int p = 23; // Prime number
+    int g = 5;  // Primitive root
+    int a = 6;  // Alice's private key
+    int b = 15; // Bob's private key
+
+    // Alice computes g^a mod p
+    int A = powerMod(g, a, p);
+    cout << "Alice's public key: " << A << endl;
+
+    // Bob computes g^b mod p
+    int B = powerMod(g, b, p);
+    cout << "Bob's public key: " << B << endl;
+
+    // Alice and Bob exchange their public keys and compute the shared secret
+    int sharedSecretAlice = powerMod(B, a, p);
+    int sharedSecretBob = powerMod(A, b, p);
+
+    cout << "Alice's shared secret: " << sharedSecretAlice << endl;
+    cout << "Bob's shared secret: " << sharedSecretBob << endl;
+
+    return 0;
+}
+`,
+    analysis: "Diffie-Hellman Key Exchange allows two parties to securely share a secret key over an insecure channel. The security relies on the difficulty of computing discrete logarithms.",
+    attacks: "Man-in-the-Middle Attack: An attacker can intercept and alter the key exchange process if proper authentication is not used."
+},
+rsa: {
+    code: `
+
+using namespace std;
+
+long long powerMod(long long base, long long exp, long long mod) {
+    long long result = 1;
+    while (exp > 0) {
+        if (exp % 2 == 1) {
+            result = (result * base) % mod;
+        }
+        base = (base * base) % mod;
+        exp /= 2;
+    }
+    return result;
+}
+
+int main() {
+    long long p = 61; // Prime number
+    long long q = 53; // Prime number
+    long long n = p * q; // Modulus
+    long long phi = (p - 1) * (q - 1); // Euler's Totient Function
+    long long e = 17; // Public exponent
+    long long d = 2753; // Private exponent (computed using Extended Euclidean Algorithm)
+
+    // Public key: (e, n)
+    // Private key: (d, n)
+
+    string plaintext = "HELLO";
+    vector<long long> encryptedText;
+    
+    // Encryption
+    for (char c : plaintext) {
+        encryptedText.push_back(powerMod(c, e, n));
+    }
+    cout << "Encrypted: ";
+    for (long long c : encryptedText) {
+        cout << c << " ";
+    }
+    cout << endl;
+
+    string decryptedText = "";
+    // Decryption
+    for (long long c : encryptedText) {
+        decryptedText += (char)powerMod(c, d, n);
+    }
+    cout << "Decrypted: " << decryptedText << endl;
+
+    return 0;
+}
+`,
+    analysis: "RSA is an asymmetric encryption algorithm that uses two keys: a public key for encryption and a private key for decryption.",
+    attacks: "Brute Force: Trying all possible keys, which is computationally infeasible for large keys. Mathematical Attacks: Exploiting mathematical properties of the algorithm, such as integer factorization."
+},
+zkp: {
+    code: `
+
+using namespace std;
+
+// Function to perform modular exponentiation (base^exp % mod)
+long long modExp(long long base, long long exp, long long mod) {
+    long long result = 1;
+    while (exp > 0) {
+        if (exp % 2 == 1) {
+            result = (result * base) % mod;
+        }
+        base = (base * base) % mod;
+        exp /= 2;
+    }
+    return result;
+}
+
+// Step 1: Initialization
+void initialize(long long &p, long long &g, long long &x, long long &y) {
+    p = 23; // Small prime for simplicity (In practice, p should be much larger)
+    g = 5;  // Generator (primitive root modulo p)
+    
+    // Prover's correct secret (private key)
+    x = rand() % (p - 1) + 1; // Random x in the range [1, p-1]
+    
+    // Prover's public key y = g^x mod p
+    y = modExp(g, x, p);
+
+    cout << "Common parameters: p = " << p << ", g = " << g << endl;
+    cout << "Prover's correct private key: x = " << x << endl;
+    cout << "Prover's public key: y = " << y << endl;
+}
+
+// Step 2: Commitment Phase
+long long commit(long long g, long long p, long long &r) {
+    r = rand() % (p - 1) + 1; // Random value r in the range [1, p-1]
+    long long t = modExp(g, r, p); // t = g^r mod p
+    cout << "Prover's commitment t: " << t << endl;
+    return t;
+}
+
+// Step 3: Challenge Phase
+long long challenge() {
+    long long c = rand() % 10 + 1; // Verifier sends random challenge
+    cout << "Verifier's challenge: c = " << c << endl;
+    return c;
+}
+
+// Step 4: Response Phase (Using the correct secret)
+long long respondCorrectSecret(long long r, long long c, long long x, long long p) {
+    long long s = (r + c * x) % (p - 1); // s = r + c * x mod (p-1)
+    cout << "Prover's response with correct secret s: " << s << endl;
+    return s;
+}
+
+// Step 4: Response Phase (Using the incorrect secret deliberately)
+long long respondWrongSecret(long long r, long long c, long long x_wrong, long long p) {
+    long long s = (r + c * x_wrong) % (p - 1); // Incorrect response using wrong secret
+    cout << "Prover's response with incorrect secret s: " << s << endl;
+    return s;
+}
+
+// Step 5: Verification
+bool verify(long long g, long long s, long long t, long long y, long long c, long long p) {
+    long long lhs = modExp(g, s, p); // g^s mod p
+    long long rhs = (t * modExp(y, c, p)) % p; // t * y^c mod p
+    cout << "Verifier checks: g^s mod p = " << lhs << ", t * y^c mod p = " << rhs << endl;
+    return lhs == rhs;
+}
+
+int main() {
+    srand(time(0)); // Seed the random number generator
+    
+    // Step 1: Initialization
+    long long p, g, x, y;
+    initialize(p, g, x, y);
+
+    // Step 2: Commitment Phase
+    long long r, t;
+    t = commit(g, p, r);
+
+    // Step 3: Challenge Phase
+    long long c;
+    c = challenge();
+
+    // Case 1: Successful Authentication using correct secret
+    cout << "\n=== Case 1: Successful Authentication ===" << endl;
+    long long s_correct;
+    s_correct = respondCorrectSecret(r, c, x, p);
+
+    // Step 5: Verification for correct secret
+    bool result_correct = verify(g, s_correct, t, y, c, p);
+    
+    if (result_correct) {
+        cout << "Authentication successful (with correct secret)!" << endl;
+    } else {
+        cout << "Authentication failed (with correct secret)!" << endl;
+    }
+
+    // Case 2: Failed Authentication using incorrect secret
+    cout << "\n=== Case 2: Failed Authentication ===" << endl;
+    long long x_wrong = rand() % (p - 1) + 1; // Simulate an incorrect secret
+    cout << "Prover's incorrect private key: x_wrong = " << x_wrong << endl;
+    long long s_wrong;
+    s_wrong = respondWrongSecret(r, c, x_wrong, p);
+
+    // Step 5: Verification for incorrect secret
+    bool result_wrong = verify(g, s_wrong, t, y, c, p);
+    
+    if (result_wrong) {
+        cout << "Authentication successful (with incorrect secret)!" << endl;
+    } else {
+        cout << "Authentication failed (with incorrect secret)!" << endl;
+    }
+
+    return 0;
+}
+`,
+    analysis: "Zero Knowledge Proofs allow one party to prove to another that a statement is true without revealing any information beyond the validity of the statement itself.",
+    attacks: "Simulation Attack: Trying to simulate the proof without knowing the secret. Replay Attack: Reusing the same proof in a different context."
+},
+
+
+
+
+
+
+
+
+            // Add more techniques here
+        };
+
+        techniqueSelect.addEventListener('change', (e) => {
+            const selected = e.target.value;
+            if (techniqueData[selected]) {
+                techniqueDetails.innerHTML = `
+                    <h3>${selected.charAt(0).toUpperCase() + selected.slice(1)} Cipher</h3>
+                    <h4>Code:</h4>
+                    <pre>${techniqueData[selected].code}</pre>
+                    <h4>Cryptanalysis:</h4>
+                    <p>${techniqueData[selected].analysis}</p>
+                    <h4>Possible Attacks:</h4>
+                    <p>${techniqueData[selected].attacks}</p>
+                `;
+                simulation.innerHTML = `
+                    <h3>Simulating ${selected.charAt(0).toUpperCase() + selected.slice(1)}</h3>
+                    <p>Simulation interface coming soon!</p>
+                `;
+            } else {
+                techniqueDetails.innerHTML = `<p>No details available for the selected technique.</p>`;
+                simulation.innerHTML = `<p>No simulation available for the selected technique.</p>`;
+            }
+        });
+    </script>
+</body>
+</html>
