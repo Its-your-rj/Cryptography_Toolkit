@@ -47,10 +47,7 @@ Stay tuned for updates as we implement these features!
 ## How to Use
 
 1. Clone this repository:
-   ```bash
-   git clone https://github.com/your-username/cryptography-toolkit.git
-   ```
-
+   
 2. Open the `index.html` file in your web browser to access the toolkit.
 
 3. Navigate through the sections to explore ciphers, analyze cryptographic methods, and understand potential vulnerabilities.
