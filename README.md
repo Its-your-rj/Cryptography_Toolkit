@@ -39,7 +39,6 @@ This section is an excellent resource for understanding the practical limitation
 Future versions of the Cryptography Toolkit will include interactive simulation tools for each cipher and cryptographic protocol. These tools will provide:
 
 - **Visualization of Encryption/Decryption**: Step-by-step animations of how the algorithms process the data.
-- **Attack Simulations**: Demonstrations of cryptanalysis and various attacks in real-time.
 - **Parameter Exploration**: Adjustable settings to test different key sizes, plaintext inputs, and algorithm variations.
 
 Stay tuned for updates as we implement these features!
